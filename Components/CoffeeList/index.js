@@ -30,7 +30,7 @@ class CoffeeList extends Component {
         onPress={() => navigation.navigate("CoffeeCart")}
       >
         <Text>
-          {"3 "}
+          {navigation.getParam("items")}
           <Icon
             type="FontAwesome"
             name="coffee"
@@ -40,6 +40,15 @@ class CoffeeList extends Component {
       </Button>
     )
   });
+
+  componentDidMount() {
+    this.props.navigation.setParams({ items: this.props.num });
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.num !== this.props.num)
+      this.props.navigation.setParams({ items: this.props.num });
+  }
 
   handlePress(shop) {
     this.props.navigation.navigate("CoffeeDetail", {
@@ -91,7 +100,8 @@ class CoffeeList extends Component {
 }
 
 const mapStateToProps = state => ({
-  coffee: state.coffee
+  coffee: state.coffee,
+  num: state.cart.num
 });
 
 export default connect(

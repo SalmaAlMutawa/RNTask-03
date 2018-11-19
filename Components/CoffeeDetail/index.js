@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-
+import * as actionCreators from "../../store/actions";
 // NativeBase Components
 import {
   Thumbnail,
@@ -26,6 +26,7 @@ class CoffeeDetail extends Component {
       drink: "Coffee",
       option: "Small"
     };
+    this.addItem = this.addItem.bind(this);
   }
 
   static navigationOptions = ({ navigation }) => ({
@@ -37,7 +38,7 @@ class CoffeeDetail extends Component {
         onPress={() => navigation.navigate("CoffeeCart")}
       >
         <Text>
-          {"3 "}
+          {navigation.getParam("items")}
           <Icon
             type="FontAwesome"
             name="coffee"
@@ -48,6 +49,14 @@ class CoffeeDetail extends Component {
     )
   });
 
+  componentDidMount() {
+    this.props.navigation.setParams({ items: this.props.num });
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.num !== this.props.num)
+      this.props.navigation.setParams({ items: this.props.num });
+  }
   changeDrink(value) {
     this.setState({
       drink: value
@@ -58,6 +67,16 @@ class CoffeeDetail extends Component {
     this.setState({
       option: value
     });
+  }
+
+  addItem() {
+    let item = {
+      drink: this.state.drink,
+      option: this.state.option,
+      quantity: 1
+    };
+    this.props.addItemToCart(item);
+    // alert(`${item} added`);
   }
 
   render() {
@@ -105,7 +124,7 @@ class CoffeeDetail extends Component {
               </Picker>
             </Body>
           </ListItem>
-          <Button full danger>
+          <Button full danger onPress={() => this.addItem()}>
             <Text>Add</Text>
           </Button>
         </List>
@@ -115,10 +134,16 @@ class CoffeeDetail extends Component {
 }
 
 const mapStateToProps = state => ({
-  cart: state.cart
+  cart: state.cart.list,
+  num: state.cart.num
 });
 
+const mapDispatchToProps = dispatch => {
+  return {
+    addItemToCart: item => dispatch(actionCreators.addItemToCart(item))
+  };
+};
 export default connect(
   mapStateToProps,
-  {}
+  mapDispatchToProps
 )(CoffeeDetail);
